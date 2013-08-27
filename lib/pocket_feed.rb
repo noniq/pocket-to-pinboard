@@ -16,9 +16,9 @@ class PocketFeed
     end
   end
   
-  def bookmarks(options = {})
+  def bookmarks(since: nil)
     items = feed.items.dup
-    items.reject!{ |item| item.pubDate < options[:since] } if options[:since]
+    items.reject!{ |item| item.pubDate < since } if since
     items.map{ |item| Bookmark.new(item.link, item.title) }
   end
   
