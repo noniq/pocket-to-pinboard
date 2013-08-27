@@ -1,0 +1,43 @@
+#! /usr/bin/env ruby
+
+require "bundler"
+require "uri"
+require "redis"
+require_relative "../lib/pocket_feed"
+require_relative "../lib/pinboard_client"
+
+def pocket_feed
+  @pocket_feed ||= PocketFeed.new(ENV["POCKET_USERNAME"], ENV["POCKET_PASSWORD"])
+end
+
+def pinboard_client
+  @pinboard_client ||= PinboardClient.new(ENV["PINBOARD_USERNAME"], ENV["PINBOARD_PASSWORD"], tags: "from:pocket", replace: false)
+end
+
+def redis
+  @redis ||= begin
+    uri = URI.parse(ENV["REDISTOGO_URL"])
+    Redis.new(host: uri.host, port: uri.port, password: uri.password)
+  end
+end
+
+def last_run
+  str = redis.get("last_run")
+  str ? Time.at(str.to_i) : nil
+end
+
+def update_last_run_timestamp
+  redis.set("last_run", Time.now.to_i)
+end
+
+puts "Fetching items added since #{last_run || '(no last run timestamp available)'}."
+bookmarks = pocket_feed.bookmarks(since: last_run)
+
+if bookmarks.size > 0
+  pinboard_client.add_bookmarks(bookmarks)
+  puts "Successfully transferred #{bookmarks.size} items from pocket to pinboard."
+else
+  puts "Nothing to do."
+end
+
+update_last_run_timestamp
