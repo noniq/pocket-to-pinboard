@@ -2,7 +2,7 @@
 
 Add everything you add to [Pocket](http://getpocket.com) to your [Pinboard](https://pinboard.in) account, too.
 
-(Pinboard already has a setting for this, but it requires that you set your [Pocket RSS feed] to public. This is script is for you if you want to keep your feed password protected.)
+(Pinboard already has a setting for this, but it requires that you set your [Pocket RSS feed] to public. This script is for you if you want to keep your feed password protected.)
 
 
 ## How it works
